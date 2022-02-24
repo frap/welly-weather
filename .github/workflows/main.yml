@@ -36,6 +36,10 @@ jobs:
                   exit $status
               fi
           fi
+      - name: execute babashka script
+        uses: tzafrirben/babashka-docker-action@v1
+        with:
+          bb_src: ./test.bb
       - name: git check in
         env:
           GIT_OWNER_EMAIL: ${{ secrets.GIT_OWNER_EMAIL }}
