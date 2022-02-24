@@ -32,7 +32,7 @@ jobs:
               echo "$FILE exists. Done for today."
           else
               echo "Obtain Wellington's today's weather condition."
-              url="http://api.openweathermap.org/data/2.5/weather?id=2179537&units=metric&APPID="$API_KEY
+              url="http://api.openweathermap.org/data/2.5/weather?id=2179537&units=metric&APPID=$API_KEY"
               response=$(curl -f "$url")
               status=$?
               if [ $status -eq 0 ]; then
