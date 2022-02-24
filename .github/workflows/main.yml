@@ -5,15 +5,22 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Execute babashka script
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Run a one-line script
+      - name: checkout
+      - uses: actions/checkout@v2
+      - name: bash PWD
         run: pwd
-      - name: Run a multi-line script
-        run: |
-          ls
-          git status
+      - name: Babashka script
+        uses: tzafrirben/babashka-docker-action@v1
+        id: bb-script
+        with:
+          bb_src: './test.bb'
+      # Print the output of the babashka script from the
+      # `bb_script` step
+      - name: Get the script output
+        run: echo "${{ steps.bb_script.outputs.bb_out }}"
       - name: Save current weather condition
         env:
           API_KEY: ${{ secrets.API_KEY }}
@@ -36,10 +43,6 @@ jobs:
                   exit $status
               fi
           fi
-      - name: execute babashka script
-        uses: tzafrirben/babashka-docker-action@v1
-        with:
-          bb_src: ./test.bb
       - name: git check in
         env:
           GIT_OWNER_EMAIL: ${{ secrets.GIT_OWNER_EMAIL }}
