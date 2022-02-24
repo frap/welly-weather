@@ -4,4 +4,4 @@
 
 @(babashka.process/process ["pwd"] {:inherit true})
 
-(babashka.tasks/shell "ping" "8.8.8.8")
+(babashka.tasks/shell "cat" "test.bb")
