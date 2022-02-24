@@ -3,59 +3,23 @@ name: CI Build
 on: [push]
 
 jobs:
-  build:
+  babashka_job:
     runs-on: ubuntu-latest
     name: Execute babashka script
-
     steps:
-      - name: checkout
-      - uses: actions/checkout@v2
-      - name: bash PWD
-        run: pwd
-      - name: Babashka script
-        uses: tzafrirben/babashka-docker-action@v1
-        id: bb-script
+      # To use a script from the repository,
+      # you must check out the repository first
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Now we can execute a babashka script from our
+      # repository
+      - name: babashka script
+        uses: tzafrirben/babashka-docker-action@v0.3
+        id: bb_script
         with:
-          bb_src: './test.bb'
+          bb_src: 'test.bb'
+          bb_args: '1 2 3 ...'
       # Print the output of the babashka script from the
       # `bb_script` step
       - name: Get the script output
         run: echo "${{ steps.bb_script.outputs.bb_out }}"
-      - name: Save current weather condition
-        env:
-          API_KEY: ${{ secrets.API_KEY }}
-        run: |
-          FILE=./docs/assets/data/`date +"%Y%m%d"`.json
-          if [ -f "$FILE" ]; then
-              echo "$FILE exists. Done for today."
-          else
-              echo "Begin to get today's weather condition."
-              echo "Fetch Wellington NZ's weather."
-              url="http://api.openweathermap.org/data/2.5/weather?id=2179537&units=metric&APPID="$API_KEY
-              response=$(curl -f "$url")
-              status=$?
-              if [ $status -eq 0 ]; then
-                  echo $response > $FILE
-                  echo "$FILE saved."
-                  echo `date +"%Y%m%d"` >> ./docs/assets/data.txt
-              else
-                  echo "curl exit code: ($status) $response"
-                  exit $status
-              fi
-          fi
-      - name: git check in
-        env:
-          GIT_OWNER_EMAIL: ${{ secrets.GIT_OWNER_EMAIL }}
-          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
-        run: |
-          git config user.email "$GIT_OWNER_EMAIL"
-          git config user.name "frap"
-          if [[ `git status --porcelain` ]]; then
-            git add .
-            git commit -a -m "add $(date +"%Y%m%d") weather data"
-            git remote rm origin
-            git remote add origin https://frap:$PUSH_TOKEN@github.com/frap/welly-weather.git
-            git push origin HEAD:master
-          else
-            echo 'unable to detect changes'
-          fi
